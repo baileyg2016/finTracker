@@ -16,5 +16,15 @@
   "bugs": {
     "url": "https://github.com/baileyg2016/finTracker/issues"
   },
-  "homepage": "https://github.com/baileyg2016/finTracker#readme"
+  "homepage": "https://github.com/baileyg2016/finTracker#readme",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "mongodb": "^3.3.5",
+    "mongoose": "^5.7.13",
+    "nodemon": "^2.0.1",
+    "util": "^0.12.1"
+  }
 }
