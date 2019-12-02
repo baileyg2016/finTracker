@@ -1,0 +1,20 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "Backend for my finance tracker",
+  "main": "server.js",
+  "scripts": {
+    "test": "nodemon server.js",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/baileyg2016/finTracker.git"
+  },
+  "author": "Bailey Spell",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/baileyg2016/finTracker/issues"
+  },
+  "homepage": "https://github.com/baileyg2016/finTracker#readme"
+}
