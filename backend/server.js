@@ -1,10 +1,12 @@
 'use strict';
 
 const util = require('util');
+var bodyParser = require('body-parser');
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const plaid = require('plaid');
+const moment = require('moment')
 
 require('dotenv').config();
 
@@ -41,6 +43,7 @@ var client = new plaid.Client(
 
 app.post('/get_access_token', function(request, response) {
     PUBLIC_TOKEN = request.body.public_token;
+    console.log("Token: " + PUBLIC_TOKEN);
     client.exchangePublicToken(PUBLIC_TOKEN, function(error, tokenResponse) {
         if (error != null) {
             prettyPrintResponse(error);
@@ -69,18 +72,18 @@ app.post('/set_access_token', function(request, response, next) {
     });
 });
 
-// Retrieve real-time Balances for each of an Item's accounts
-// https://plaid.com/docs/#balance
-app.get('/balance', function(request, response, next) {
-    client.getBalance(ACCESS_TOKEN, function(error, balanceResponse) {
-        if (error != null) {
+// Retrieve Identity for an Item
+// https://plaid.com/docs/#identity
+app.get('/identity', function(request, response, next) {
+    client.getIdentity(ACCESS_TOKEN, function(error, identityResponse) {
+      if (error != null) {
             prettyPrintResponse(error);
-            return response.json({
+                return response.json({
                 error: error,
             });
         }
-        prettyPrintResponse(balanceResponse);
-        response.json({error: null, balance: balanceResponse});
+        prettyPrintResponse(identityResponse);
+        response.json({error: null, identity: identityResponse});
     });
 });
 
@@ -96,6 +99,28 @@ app.get('/balance', function(request, response, next) {
         }
         prettyPrintResponse(balanceResponse);
         response.json({error: null, balance: balanceResponse});
+    });
+});
+
+// Retrieve Transactions for an Item
+// https://plaid.com/docs/#transactions
+app.get('/transactions', function(request, response, next) {
+    // Pull transactions for the Item for the last 30 days
+    var startDate = moment().subtract(30, 'days').format('YYYY-MM-DD');
+    var endDate = moment().format('YYYY-MM-DD');
+    client.getTransactions(ACCESS_TOKEN, startDate, endDate, {
+        count: 250,
+        offset: 0,
+    }, function(error, transactionsResponse) {
+        if (error != null) {
+            prettyPrintResponse(error);
+            return response.json({
+            error: error
+            });
+        } else {
+            prettyPrintResponse(transactionsResponse);
+            response.json({error: null, transactions: transactionsResponse});
+        }
     });
 });
 
