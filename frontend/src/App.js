@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PlaidLink from 'react-plaid-link';
 import axios from 'axios';
 
-import Info from './components/info.component';
+import TransactionList from './components/transactionList.component';
 
 class App extends Component {
   constructor(props) {
@@ -56,7 +56,7 @@ class App extends Component {
       </PlaidLink>;
     }
     else {
-      content = <Info />;
+      content = <TransactionList />;
     }
     return (
       <div>
