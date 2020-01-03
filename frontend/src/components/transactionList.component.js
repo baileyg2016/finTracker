@@ -1,12 +1,16 @@
-import React, { Component } from 'react';
+import React, { Component, } from 'react';
 import axios from 'axios';
+import { VerticalTimeline, VerticalTimelineElement }  from 'react-vertical-timeline-component';
+import 'react-vertical-timeline-component/style.min.css';
+
 
 export default class TransactionList extends Component {
     constructor(props) {
         super(props);
         this.state = {
-          html: {},
+          transactions: [],
           balance: 0,
+          items: [1,2,3]
         };
     }
 
@@ -27,28 +31,46 @@ export default class TransactionList extends Component {
                     res.data.balance.accounts[0].balances.available : res.data.balance.accounts[0].account.balances.current),
                 transactions: {}};
         }).then(() => {
-            var transactions = {};
-            var items = [];
+            var transactions = [];
             axios.get("http://localhost:5000/transactions").then(res => {
-                var i = 0;
                 res.data.transactions.transactions.forEach(function(txn, idx) {
-                    transactions[i] = {name: txn.name, amount: txn.amount, date: txn.date};
-                    items.push({ts: txn.date, text: txn.name + " " + txn.amout});
-                    i++;
+                    transactions.push({name: txn.name, amount: txn.amount, date: txn.date});
+                    // item.push("hey");
                 });
-            })
-            content.transactions = transactions;
-            this.setState({html: content, balance: content.balance, txs: items});
-        }).then( () => {
+                this.setState({transactions: transactions, balance: content.balance});
+            });
             
+            console.log(transactions)
+            console.log("before")
+            transactions.map((item) => {
+                return console.log("testing: ");
+            });
+            console.log("after")
         }).catch(err => console.log(err));
     }
 
     render() {
+        console.log("items" + this.state.items);
+        var list = this.state.transactions.map((item, id) => {
+            return (
+                <VerticalTimelineElement
+                    className="vertical-timeline-element--work"
+                    contentStyle={{ background: 'rgb(33, 150, 243)', color: '#fff' }}
+                    contentArrowStyle={{ borderRight: '7px solid  rgb(33, 150, 243)' }}
+                    date={item.date}
+                    iconStyle={{ background: 'rgb(33, 150, 243)', color: '#fff' }}
+                    key={id}
+                >
+                    <h3 className="vertical-timeline-element-title">{item.name}</h3>
+                    <h4 className="vertical-timeline-element-subtitle">${item.amount}</h4>
+                </VerticalTimelineElement>
+            );
+        });
+        
         return (
-            <div>
-                
-            </div>
+            <VerticalTimeline>
+                {list}
+            </VerticalTimeline>
         );
     }
 }
