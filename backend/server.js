@@ -6,7 +6,8 @@ const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const plaid = require('plaid');
-const moment = require('moment')
+const moment = require('moment');
+var CategoriesDB = require('./models/categories.model');
 
 require('dotenv').config();
 
@@ -124,12 +125,16 @@ app.get('/transactions', function(request, response, next) {
     });
 });
 
+app.post('/categories', (req, res) => {
+    CategoriesDB.findOneAndUpdate({category: req.body.category}, {$inc: { amount: 1 }}, {new: true, upsert: true})
+        .then(() => res.json('Category added!'))
+        .catch(err => res.status(400).json('Error: ' + err));
+});
+
 // setting up the server on port 5000
 app.listen(port, () => {
     console.log(`Server is running on port: ${port}`);
 });
-
-
 
 var prettyPrintResponse = response => {
     console.log(util.inspect(response, {colors: true, depth: 4}));

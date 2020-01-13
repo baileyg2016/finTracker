@@ -7,16 +7,21 @@ import TransactionList from './transactionList.component';
 export default class Wrapper extends Component {
     constructor(props) {
         super(props);
+        // this.mapInsert = this.mapInsert.bind(this);
         this.state = {
             transactions: [],
-            categories: [],
+            categories: [{category: "", amount: 0}],
             balance: 0
         };
     }
 
+    // function mapInsert(map, element) {
+        
+    // }
+
     componentDidMount() {
         var content = {};
-        var categories =[];
+        var categories = new Map();
         axios.get("http://localhost:5000/balance").then(res => {
             content= {account: res.data.balance.accounts[0], 
                 balance: (res.data.balance.accounts[0].balances.available != null ? 
@@ -27,8 +32,15 @@ export default class Wrapper extends Component {
             axios.get("http://localhost:5000/transactions").then(res => {
                 res.data.transactions.transactions.forEach(function(txn, idx) {
                     transactions.push({ts: txn.date, text: txn.name, amount: txn.amount, categories: txn.category});
-                    categories.push(txn.category + "|");
+                    if (categories.has(txn.category[0])) {
+                        var currAmount = categories.get(txn.category[0]);
+                        categories.set(txn.category[0], ++currAmount);
+                    }
+                    else {
+                        categories.set(txn.category[0], 1);
+                    }
                 });
+                // console.log("wrapper: " + categories);
                 this.setState({transactions: transactions, balance: content.balance, categories: categories});
             });
         }).catch(err => console.log(err));

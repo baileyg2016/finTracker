@@ -10,13 +10,19 @@ export default class Graph extends Component {
     }
 
     componentDidMount() {
-        
+        // for (var i in this.props.categories) {
+        //     console.log(i);
+        // }
     }
 
     render() {
-        console.log("cats: " + this.props.categories);
+        var o = Object.fromEntries(this.props.categories);
+        console.log(o);
         return (
-            <h1>We are getting started</h1>
+            <div>
+                <h1>Here is your current balance: ${this.props.balance}</h1>
+                <h2>Here is a graph of your spending:</h2>
+            </div>
         );
     }
 }
