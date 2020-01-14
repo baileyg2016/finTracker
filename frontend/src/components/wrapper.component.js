@@ -3,6 +3,7 @@ import axios from 'axios';
 
 import Graph from './graph.component';
 import TransactionList from './transactionList.component';
+// import Loading from './loading.component';
 
 export default class Wrapper extends Component {
     constructor(props) {
@@ -10,8 +11,10 @@ export default class Wrapper extends Component {
         // this.mapInsert = this.mapInsert.bind(this);
         this.state = {
             transactions: [],
-            categories: [{category: "", amount: 0}],
-            balance: 0
+            categories: {},
+            labels: [],
+            balance: 0,
+            loggedIn: false
         };
     }
 
@@ -28,34 +31,51 @@ export default class Wrapper extends Component {
                     res.data.balance.accounts[0].balances.available : res.data.balance.accounts[0].account.balances.current),
                 transactions: []};
         }).then(() => {
-            var transactions = [];
+            var trans = [];
             axios.get("http://localhost:5000/transactions").then(res => {
                 res.data.transactions.transactions.forEach(function(txn, idx) {
-                    transactions.push({ts: txn.date, text: txn.name, amount: txn.amount, categories: txn.category});
+                    trans.push({ts: txn.date, text: txn.name, amount: txn.amount, categories: txn.category});
                     if (categories.has(txn.category[0])) {
                         var currAmount = categories.get(txn.category[0]);
-                        categories.set(txn.category[0], ++currAmount);
+                        categories.set(txn.category[0], txn.amount + currAmount);
                     }
                     else {
-                        categories.set(txn.category[0], 1);
+                        categories.set(txn.category[0], txn.amount);
                     }
                 });
-                // console.log("wrapper: " + categories);
-                this.setState({transactions: transactions, balance: content.balance, categories: categories});
+                if (categories.size > 0 && trans.length > 0) {
+                    this.setState({transactions: trans, 
+                        balance: content.balance, 
+                        categories: categories, 
+                        loggedIn: true});   
+                }
             });
         }).catch(err => console.log(err));
     }
 
     render() {
-        return (
-            <div style={{
-                display: 'flex',
-                flexDirection: 'row'
-            }}>
-                
-                <TransactionList transactions={this.state.transactions} />
-                <Graph balance={this.state.balance} categories={this.state.categories} />
-            </div>
-        );
+        if (this.state.loggedIn) {
+            return (
+                <div style={{
+                    display: 'flex',
+                    flexDirection: 'row'
+                }}>
+                    <TransactionList transactions={this.state.transactions} />
+                    <Graph 
+                        balance={this.state.balance} 
+                        categories={this.state.categories} 
+                        labels={Array.from(this.state.categories.keys())}
+                        values={Array.from(this.state.categories.values())}
+                        width={400}
+                        height={400}
+                    />
+                </div>
+            );
+        }
+        else {
+            return (
+                <h1>We are loading your information</h1>
+            )
+        }
     }
 }
