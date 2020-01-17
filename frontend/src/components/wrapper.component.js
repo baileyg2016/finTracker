@@ -12,7 +12,7 @@ const leftSide = {
 
 const rightSide = {
     float: 'right',
-    marginLeft: '350px', 
+    marginLeft: '675px', 
     justifyContent: 'right',
     position: 'fixed'
 };
