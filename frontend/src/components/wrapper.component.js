@@ -5,6 +5,18 @@ import Graph from './graph.component';
 import TransactionList from './transactionList.component';
 // import Loading from './loading.component';
 
+const leftSide = {
+    display: 'flex',
+    flexDirection: 'row'
+};
+
+const rightSide = {
+    float: 'right',
+    marginLeft: '350px', 
+    justifyContent: 'right',
+    position: 'fixed'
+};
+
 export default class Wrapper extends Component {
     constructor(props) {
         super(props);
@@ -56,19 +68,22 @@ export default class Wrapper extends Component {
     render() {
         if (this.state.loggedIn) {
             return (
-                <div style={{
-                    display: 'flex',
-                    flexDirection: 'row'
-                }}>
-                    <TransactionList transactions={this.state.transactions} />
-                    <Graph 
-                        balance={this.state.balance} 
-                        categories={this.state.categories} 
-                        labels={Array.from(this.state.categories.keys())}
-                        values={Array.from(this.state.categories.values())}
-                        width={400}
-                        height={400}
-                    />
+                <div style={leftSide}>
+                    <div style={{float: 'left', overflow: 'auto'}}>
+                        <TransactionList 
+                            transactions={this.state.transactions}
+                        />
+                    </div>
+                    <div style={rightSide}>
+                        <Graph 
+                            balance={this.state.balance} 
+                            categories={this.state.categories} 
+                            labels={Array.from(this.state.categories.keys())}
+                            values={Array.from(this.state.categories.values())}
+                            width={400}
+                            height={400}
+                        />
+                    </div>
                 </div>
             );
         }

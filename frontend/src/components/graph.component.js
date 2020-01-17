@@ -1,6 +1,15 @@
 import React, { Component } from 'react';
 import {Doughnut} from 'react-chartjs-2';
 
+const container = {
+    background: '#fff',
+    // width: '80%',
+    margin: '0 auto',
+    position: 'center',
+    boxShadow: '0 4px 4px',
+    borderTop: 'none'
+};
+
 export default class Graph extends Component {
     constructor(props) {
         super(props);
@@ -45,9 +54,9 @@ export default class Graph extends Component {
 
     render () {
         return (
-            <div>
+            <div style={container}>
                 <h1>Here is your balance: ${this.props.balance}</h1>
-                <Doughnut 
+                <Doughnut
                     width={this.props.width} 
                     height={this.props.height}
                     data={this.state.data} />
