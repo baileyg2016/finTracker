@@ -4,6 +4,15 @@ import axios from 'axios';
 
 import Wrapper from './components/wrapper.component';
 
+const style = {
+  height: '30px',
+  width: '200px',
+  left: '50%',
+  top: '50%',
+  marginTop: '-15px',
+  marginLeft: '-100px',
+  position: 'fixed' 
+};
 
 class App extends Component {
   constructor(props) {
@@ -31,7 +40,8 @@ class App extends Component {
     var content;
     if (!this.state.loggedIn) {
       content = <PlaidLink
-        clientName="Finance Tracker"
+        style={style}
+        clientName="Spending Habits"
         env="sandbox"
         product={["auth", "transactions"]}
         publicKey="f15bc21748457e1c76cdf0a4692947"

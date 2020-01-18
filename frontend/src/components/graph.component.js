@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import {Doughnut, Bar} from 'react-chartjs-2';
 
-const container = {
+// const container = {
     // background: '#fff',
     // margin: '0 auto',
     // position: 'center',
@@ -9,7 +9,29 @@ const container = {
     // borderTop: 'none',
     // width: '500px',
     // height: '500px'
-};
+// };
+
+const wrapper = {
+    width: '905px',
+    // marginLeft: '150px'
+    margin: '0 auto'
+}
+
+const left = {
+    border: '1px solid white',
+    float: 'right',
+    // minHeight: '450px',
+    color: 'white',
+    width: '450px',
+}
+
+const right = {
+    border: '1px solid white',
+    float: 'right',
+    // minHeight: '450px',
+    color: 'white',
+    width: '450px',
+}
 
 export default class Graph extends Component {
     constructor(props) {
@@ -75,16 +97,16 @@ export default class Graph extends Component {
 
     render () {
         return (
-            <div margin='auto'>
-                <div style={container} float='right'>
-                    <h1>{/*this.props.doughnutText} ${this.props.balance*/}</h1>
+            <div style={wrapper}>
+                <div style={right} >
+                    {/* <h1>this.props.doughnutText} ${this.props.balance</h1> */}
                     <Doughnut
                         width={this.props.width} 
                         height={this.props.height}
                         data={this.state.doughnutData} />
                 </div>
-                <div style={container} float='left'>
-                    <h1>{/*this.props.barText*/}</h1>
+                <div style={left} >
+                    {/* <h1>this.props.barText</h1> */}
                     <Bar
                         width={this.props.width} 
                         height={this.props.height}

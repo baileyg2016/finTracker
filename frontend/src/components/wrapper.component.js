@@ -14,7 +14,7 @@ const rightSide = {
     float: 'right',
     marginLeft: '350px', 
     justifyContent: 'right',
-    // position: 'fixed'
+    position: 'fixed'
 };
 
 export default class Wrapper extends Component {
