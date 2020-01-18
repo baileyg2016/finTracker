@@ -33,6 +33,16 @@ const right = {
     width: '450px',
 }
 
+const barOptions = {
+    scales: {
+        yAxes: [{
+            ticks: {
+                beginAtZero: true
+            }
+        }]
+    }
+};
+
 export default class Graph extends Component {
     constructor(props) {
         super(props);
@@ -81,16 +91,7 @@ export default class Graph extends Component {
                 backgroundColor: colors,
                 data: this.props.barValues,
                 minBarLength: 1
-            }],
-            options: {
-                scales: {
-                    yAxes: [{
-                        ticks: {
-                            beginAtZero: true
-                        }
-                    }]
-                }
-            }
+            }]
         }
         this.setState({doughnutData: mDoughnutData, barData: mBarData});
     }
@@ -99,18 +100,17 @@ export default class Graph extends Component {
         return (
             <div style={wrapper}>
                 <div style={right} >
-                    {/* <h1>this.props.doughnutText} ${this.props.balance</h1> */}
                     <Doughnut
                         width={this.props.width} 
                         height={this.props.height}
                         data={this.state.doughnutData} />
                 </div>
                 <div style={left} >
-                    {/* <h1>this.props.barText</h1> */}
                     <Bar
                         width={this.props.width} 
                         height={this.props.height}
-                        data={this.state.barData} />
+                        data={this.state.barData}
+                        options={barOptions} />
                 </div>
             </div>
         )

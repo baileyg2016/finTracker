@@ -7,7 +7,8 @@ import Graphs from './graph.component';
 
 const leftSide = {
     display: 'flex',
-    flexDirection: 'row'
+    flexDirection: 'row',
+    overflowY: 'auto',
 };
 
 const rightSide = {
