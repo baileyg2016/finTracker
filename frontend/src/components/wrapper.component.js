@@ -1,8 +1,8 @@
 import React, { Component, } from 'react';
 import axios from 'axios';
+import Timeline from 'react-time-line';
 
-import Graph from './graph.component';
-import TransactionList from './transactionList.component';
+import Graphs from './graph.component';
 // import Loading from './loading.component';
 
 const leftSide = {
@@ -12,9 +12,9 @@ const leftSide = {
 
 const rightSide = {
     float: 'right',
-    marginLeft: '675px', 
+    marginLeft: '350px', 
     justifyContent: 'right',
-    position: 'fixed'
+    // position: 'fixed'
 };
 
 export default class Wrapper extends Component {
@@ -24,6 +24,7 @@ export default class Wrapper extends Component {
         this.state = {
             transactions: [],
             categories: {},
+            catTime: {},
             labels: [],
             balance: 0,
             loggedIn: false
@@ -37,6 +38,7 @@ export default class Wrapper extends Component {
     componentDidMount() {
         var content = {};
         var categories = new Map();
+        var catNumTimes = new Map();
         axios.get("http://localhost:5000/balance").then(res => {
             content= {account: res.data.balance.accounts[0], 
                 balance: (res.data.balance.accounts[0].balances.available != null ? 
@@ -54,13 +56,24 @@ export default class Wrapper extends Component {
                     else {
                         categories.set(txn.category[0], txn.amount);
                     }
+
+                    if (catNumTimes.has(txn.category[0])) {
+                        var currTime = catNumTimes.get(txn.category[0]);
+                        catNumTimes.set(txn.category[0], ++currTime);
+                    }
+                    else {
+                        catNumTimes.set(txn.category[0], 1);
+                    }
                 });
                 if (categories.size > 0 && trans.length > 0) {
                     this.setState({transactions: trans, 
                         balance: content.balance, 
                         categories: categories, 
+                        catTime: catNumTimes,
                         loggedIn: true});   
                 }
+            }).then(() => {
+
             });
         }).catch(err => console.log(err));
     }
@@ -70,16 +83,23 @@ export default class Wrapper extends Component {
             return (
                 <div style={leftSide}>
                     <div style={{float: 'left', overflow: 'auto'}}>
-                        <TransactionList 
-                            transactions={this.state.transactions}
+                        <Timeline 
+                            items={this.state.transactions}
                         />
                     </div>
                     <div style={rightSide}>
-                        <Graph 
+                        <div>
+                            
+                        </div>
+                        <Graphs
                             balance={this.state.balance} 
-                            categories={this.state.categories} 
-                            labels={Array.from(this.state.categories.keys())}
-                            values={Array.from(this.state.categories.values())}
+                            doughnut={this.state.categories}
+                            doughnutText={"Here is your current balance:"}
+                            doughnutLabels={Array.from(this.state.categories.keys())}
+                            doughnutValues={Array.from(this.state.categories.values())}
+                            barText={"Here is how often you spend money at these places: "}
+                            barLabels={Array.from(this.state.catTime.keys())}
+                            barValues={Array.from(this.state.catTime.values())}
                             width={400}
                             height={400}
                         />

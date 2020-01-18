@@ -1,13 +1,14 @@
 import React, { Component } from 'react';
-import {Doughnut} from 'react-chartjs-2';
+import {Doughnut, Bar} from 'react-chartjs-2';
 
 const container = {
-    background: '#fff',
-    // width: '80%',
-    margin: '0 auto',
-    position: 'center',
-    boxShadow: '0 4px 4px',
-    borderTop: 'none'
+    // background: '#fff',
+    // margin: '0 auto',
+    // position: 'center',
+    // boxShadow: '0 4px 4px',
+    // borderTop: 'none',
+    // width: '500px',
+    // height: '500px'
 };
 
 export default class Graph extends Component {
@@ -15,7 +16,8 @@ export default class Graph extends Component {
         super(props);
         this.randomColor = this.randomColor.bind(this);
         this.state = {
-            data: {},
+            doughnutData: {},
+            barData: {}
         };
     }
 
@@ -30,16 +32,16 @@ export default class Graph extends Component {
 
     componentDidMount() {
         var colors = []
-        for (var i = 0; i < this.props.values.length; i++) {
+        for (var i = 0; i < this.props.doughnutValues.length; i++) {
             colors.push(this.randomColor());
         }
-        var data = {
-            labels: this.props.labels,
+        var mDoughnutData = {
+            labels: this.props.doughnutLabels,
             datasets: [{
               label: "Your current spending",
               backgroundColor: colors,
               borderColor: 'rgb(255, 255, 255)',
-              data: this.props.values,
+              data: this.props.doughnutValues,
               borderWidth: 1
             }],
             options: {
@@ -49,17 +51,45 @@ export default class Graph extends Component {
                 }
             }
         }
-        this.setState({data: data});
+
+        var mBarData = {
+            labels: this.props.barLabels,
+            datasets: [{
+                label: "Frequency of Payments",    
+                backgroundColor: colors,
+                data: this.props.barValues,
+                minBarLength: 1
+            }],
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                }
+            }
+        }
+        this.setState({doughnutData: mDoughnutData, barData: mBarData});
     }
 
     render () {
         return (
-            <div style={container}>
-                <h1>Here is your balance: ${this.props.balance}</h1>
-                <Doughnut
-                    width={this.props.width} 
-                    height={this.props.height}
-                    data={this.state.data} />
+            <div margin='auto'>
+                <div style={container} float='right'>
+                    <h1>{/*this.props.doughnutText} ${this.props.balance*/}</h1>
+                    <Doughnut
+                        width={this.props.width} 
+                        height={this.props.height}
+                        data={this.state.doughnutData} />
+                </div>
+                <div style={container} float='left'>
+                    <h1>{/*this.props.barText*/}</h1>
+                    <Bar
+                        width={this.props.width} 
+                        height={this.props.height}
+                        data={this.state.barData} />
+                </div>
             </div>
         )
     }
