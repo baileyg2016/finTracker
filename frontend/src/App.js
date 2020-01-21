@@ -11,7 +11,7 @@ const style = {
   top: '50%',
   marginTop: '-15px',
   marginLeft: '-100px',
-  position: 'fixed' 
+  position: 'fixed'
 };
 
 class App extends Component {
@@ -41,7 +41,7 @@ class App extends Component {
     if (!this.state.loggedIn) {
       content = <PlaidLink
         style={style}
-        clientName="Spending Habits"
+        clientName="Finance Tracker"
         env="sandbox"
         product={["auth", "transactions"]}
         publicKey="f15bc21748457e1c76cdf0a4692947"

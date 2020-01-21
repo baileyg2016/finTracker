@@ -1,18 +1,8 @@
 import React, { Component } from 'react';
 import {Doughnut, Bar} from 'react-chartjs-2';
 
-// const container = {
-    // background: '#fff',
-    // margin: '0 auto',
-    // position: 'center',
-    // boxShadow: '0 4px 4px',
-    // borderTop: 'none',
-    // width: '500px',
-    // height: '500px'
-// };
-
 const wrapper = {
-    width: '905px',
+    width: '980px',
     // marginLeft: '150px'
     margin: '0 auto'
 }
@@ -37,7 +27,8 @@ const barOptions = {
     scales: {
         yAxes: [{
             ticks: {
-                beginAtZero: true
+                beginAtZero: true,
+                callback: (value) => {if (value % 1 === 0) {return value;}}
             }
         }]
     }
