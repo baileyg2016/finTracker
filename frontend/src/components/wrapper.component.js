@@ -36,6 +36,8 @@ export default class Wrapper extends Component {
         super(props);
         this.getYesterday = this.getYesterday.bind(this);
         this.getYear = this.getYear.bind(this);
+        this.getBalance = this.getBalance.bind(this);
+        this.getTransactions = this.getTransactions.bind(this);
         this.state = {
             transactions: [],
             categories: {},
@@ -46,19 +48,27 @@ export default class Wrapper extends Component {
         };
     }
 
+    getBalance() {
+        return axios.get("http://localhost:5000/balance");
+    }
+
+    getTransactions() {
+        return axios.get("http://localhost:5000/transactions");
+    }
+
     componentDidMount() {
-        var content = {};
+        var balance = 0;
         var categories = new Map();
         var catNumTimes = new Map();
-        axios.get("http://localhost:5000/balance").then(res => {
-            content= {account: res.data.balance.accounts[0], 
-                balance: (res.data.balance.accounts[0].balances.available != null ? 
-                    res.data.balance.accounts[0].balances.available : res.data.balance.accounts[0].account.balances.current),
-                transactions: []};
-        }).then(() => {
-            var trans = [];
-            axios.get("http://localhost:5000/transactions").then(res => {
-                res.data.transactions.transactions.forEach(function(txn, idx) {
+        var trans = [];
+        axios.all([this.getBalance(), this.getTransactions()])
+            .then(axios.spread((balanceRes, transRes) => {
+                // get the balance
+                balance = (balanceRes.data.balance.accounts[0].balances.available != null ? 
+                    balanceRes.data.balance.accounts[0].balances.available : balanceRes.data.balance.accounts[0].account.balances.current)
+                
+                // get transaction data
+                transRes.data.transactions.transactions.forEach((txn, idx) => {
                     trans.push({ts: txn.date, text: txn.name, amount: txn.amount, categories: txn.category});
                     if (categories.has(txn.category[0])) {
                         var currAmount = categories.get(txn.category[0]);
@@ -76,17 +86,14 @@ export default class Wrapper extends Component {
                         catNumTimes.set(txn.category[0], 1);
                     }
                 });
-                if (categories.size > 0 && trans.length > 0) {
-                    this.setState({transactions: trans, 
-                        balance: content.balance, 
-                        categories: categories, 
-                        catTime: catNumTimes,
-                        loggedIn: true});   
-                }
-            }).then(() => {
 
-            });
-        }).catch(err => console.log(err));
+                this.setState({transactions: trans, 
+                    balance: balance, 
+                    categories: categories, 
+                    catTime: catNumTimes,
+                    loggedIn: true});  
+            })
+        )
     }
 
     getYesterday() {
@@ -95,7 +102,8 @@ export default class Wrapper extends Component {
         var categories = new Map();
         var catNumTimes = new Map();
         var trans = [];
-        axios.get("http://localhost:5000/yesterday", res => {
+        
+            axios.get("http://localhost:5000/yesterday", res => {
             console.log("in get request")
             res.data.transactions.transactions.forEach(function(txn, idx) {
                 trans.push({ts: txn.date, text: txn.name, amount: txn.amount, categories: txn.category});
@@ -125,6 +133,8 @@ export default class Wrapper extends Component {
                     loggedIn: true});   
             }
         });
+        
+        
     }
 
     getYear() {
@@ -133,7 +143,7 @@ export default class Wrapper extends Component {
         var categories = new Map();
         var catNumTimes = new Map();
         var trans = [];
-        axios.get("http://localhost:5000/transactions/365", res => {
+        axios.get("http://localhost:5000/transactions/", res => {
             console.log("The res")
             
             res.data.transactions.transactions.forEach(function(txn, idx) {

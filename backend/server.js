@@ -25,13 +25,13 @@ app.use(bodyParser.json());
 
 // setting up the mongo database
 const uri = process.env.ATLAS_URI;
-mongoose.connect(uri, { useNewUrlParser: true, useCreateIndex: true, useUnifiedTopology: true });
-const connection = mongoose.connection;
-connection.once('open', () => {
-    console.log("MongoDB database conenctino established succesfully");
-}).catch((err) => {
-    console.log("Not Connected to Database ERROR! ", err);
-});
+// mongoose.connect(uri, { useNewUrlParser: true, useCreateIndex: true, useUnifiedTopology: true });
+// const connection = mongoose.connection;
+// connection.once('open', () => {
+//     console.log("MongoDB database conenctino established succesfully");
+// }).catch((err) => {
+//     console.log("Not Connected to Database ERROR! ", err);
+// });
 
 // setting up the plaid client
 var client = new plaid.Client(
