@@ -105,9 +105,9 @@ app.get('/balance', function(request, response, next) {
 
 // Retrieve Transactions for an Item
 // https://plaid.com/docs/#transactions
-app.get('/transactions', function(request, response, next) {
+app.get('/transactions/:days', function(request, response, next) {
     // Pull transactions for the Item for the last 30 days
-    var startDate = moment().subtract(30, 'days').format('YYYY-MM-DD');
+    var startDate = moment().subtract(request.params.days, 'days').format('YYYY-MM-DD');
     var endDate = moment().format('YYYY-MM-DD');
     client.getTransactions(ACCESS_TOKEN, startDate, endDate, {
         count: 250,
@@ -129,46 +129,6 @@ app.post('/categories', (req, res) => {
     CategoriesDB.findOneAndUpdate({category: req.body.category}, {$inc: { amount: 1 }}, {new: true, upsert: true})
         .then(() => res.json('Category added!'))
         .catch(err => res.status(400).json('Error: ' + err));
-});
-
-app.get('/yesterday', (req, res) => {
-    console.log("Yesterday request")
-    var startDate = moment().subtract(1, 'days').format('YYYY-MM-DD');
-    var endDate = moment().format('YYYY-MM-DD');
-    client.getTransactions(ACCESS_TOKEN, startDate, endDate, {
-        count: 250,
-        offset: 0,
-    }, function(error, transactionsResponse) {
-        if (error != null) {
-            prettyPrintResponse(error);
-            return res.json({
-                error: error
-            });
-        } else {
-            prettyPrintResponse(transactionsResponse);
-            res.json({error: null, transactions: transactionsResponse});
-        }
-    });
-});
-
-app.get('/year', (req, res) => {
-    console.log("Year request")
-    var startDate = moment().subtract(365, 'days').format('YYYY-MM-DD');
-    var endDate = moment().format('YYYY-MM-DD');
-    client.getTransactions(ACCESS_TOKEN, startDate, endDate, {
-        count: 500,
-        offset: 0,
-    }, function(error, transactionsResponse) {
-        if (error != null) {
-            prettyPrintResponse(error);
-            return res.json({
-                error: error
-            });
-        } else {
-            prettyPrintResponse(transactionsResponse);
-            res.json({error: null, transactions: transactionsResponse});
-        }
-    });
 });
 
 // setting up the server on port 5000

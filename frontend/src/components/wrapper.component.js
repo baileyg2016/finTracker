@@ -34,14 +34,14 @@ const rightSide = {
 export default class Wrapper extends Component {
     constructor(props) {
         super(props);
-        this.getYesterday = this.getYesterday.bind(this);
-        this.getYear = this.getYear.bind(this);
         this.getBalance = this.getBalance.bind(this);
-        this.getTransactions = this.getTransactions.bind(this);
+        this.getTransRequest = this.getTransRequest.bind(this);
+        this.updatePage = this.updatePage.bind(this);
+        this.getYearToDate = this.getYearToDate.bind(this);
         this.state = {
             transactions: [],
             categories: {},
-            catTime: {},
+            categoryFreq: {},
             labels: [],
             balance: 0,
             loggedIn: false
@@ -52,129 +52,77 @@ export default class Wrapper extends Component {
         return axios.get("http://localhost:5000/balance");
     }
 
-    getTransactions() {
-        return axios.get("http://localhost:5000/transactions");
+    getTransRequest(days) {
+        return axios.get("http://localhost:5000/transactions/" + days);
+    }
+
+    getTransactions(transRes) {
+        var trans = [];
+        var categories = new Map();
+        var categoryFreq = new Map();
+        var colors = [];
+        transRes.data.transactions.transactions.forEach((txn, idx) => {
+            trans.push({ts: txn.date, text: txn.name, amount: txn.amount, categories: txn.category});
+            
+            if (categories.has(txn.category[0])) {
+                var currAmount = categories.get(txn.category[0]);
+                categories.set(txn.category[0], txn.amount + currAmount);
+            }
+            else {
+                categories.set(txn.category[0], txn.amount);
+            }
+
+            if (categoryFreq.has(txn.category[0])) {
+                var currTime = categoryFreq.get(txn.category[0]);
+                categoryFreq.set(txn.category[0], ++currTime);
+            }
+            else {
+                categoryFreq.set(txn.category[0], 1);
+            }
+        });
+        return {transactions: trans, categories: categories, categoryFreq: categoryFreq, colors: colors};
     }
 
     componentDidMount() {
+        console.log("mounting");
         var balance = 0;
-        var categories = new Map();
-        var catNumTimes = new Map();
-        var trans = [];
-        axios.all([this.getBalance(), this.getTransactions()])
+        axios.all([this.getBalance(), this.getTransRequest(30)])
             .then(axios.spread((balanceRes, transRes) => {
                 // get the balance
                 balance = (balanceRes.data.balance.accounts[0].balances.available != null ? 
                     balanceRes.data.balance.accounts[0].balances.available : balanceRes.data.balance.accounts[0].account.balances.current)
                 
                 // get transaction data
-                transRes.data.transactions.transactions.forEach((txn, idx) => {
-                    trans.push({ts: txn.date, text: txn.name, amount: txn.amount, categories: txn.category});
-                    if (categories.has(txn.category[0])) {
-                        var currAmount = categories.get(txn.category[0]);
-                        categories.set(txn.category[0], txn.amount + currAmount);
-                    }
-                    else {
-                        categories.set(txn.category[0], txn.amount);
-                    }
-
-                    if (catNumTimes.has(txn.category[0])) {
-                        var currTime = catNumTimes.get(txn.category[0]);
-                        catNumTimes.set(txn.category[0], ++currTime);
-                    }
-                    else {
-                        catNumTimes.set(txn.category[0], 1);
-                    }
-                });
-
-                this.setState({transactions: trans, 
+                var data = this.getTransactions(transRes);
+                // var completeData = this.addData(data.categoryFreq, data.transactions);
+                this.setState({transactions: data.transactions, 
                     balance: balance, 
-                    categories: categories, 
-                    catTime: catNumTimes,
+                    categoryFreq: data.categoryFreq,
+                    categories: data.categories,
                     loggedIn: true});  
             })
         )
     }
 
-    getYesterday() {
-        console.log("Getting yesterdays info");
-        var content = {};
-        var categories = new Map();
-        var catNumTimes = new Map();
-        var trans = [];
-        
-            axios.get("http://localhost:5000/yesterday", res => {
-            console.log("in get request")
-            res.data.transactions.transactions.forEach(function(txn, idx) {
-                trans.push({ts: txn.date, text: txn.name, amount: txn.amount, categories: txn.category});
-                if (categories.has(txn.category[0])) {
-                    var currAmount = categories.get(txn.category[0]);
-                    categories.set(txn.category[0], txn.amount + currAmount);
-                }
-                else {
-                    categories.set(txn.category[0], txn.amount);
-                }
-
-                if (catNumTimes.has(txn.category[0])) {
-                    var currTime = catNumTimes.get(txn.category[0]);
-                    catNumTimes.set(txn.category[0], ++currTime);
-                }
-                else {
-                    catNumTimes.set(txn.category[0], 1);
-                }
-            });
-            console.log(trans)
-            if (categories.size > 0 && trans.length > 0) {
-                console.log("set state too")
-                this.setState({transactions: trans, 
-                    balance: content.balance, 
-                    categories: categories, 
-                    catTime: catNumTimes,
-                    loggedIn: true});   
-            }
-        });
-        
-        
+    updatePage(days) {
+        console.log("updating")
+        this.getTransRequest(days).then(res => {
+            var data = this.getTransactions(res);
+            // var completeData = this.addData(data.categoryFreq, data.transactions);
+            this.setState({transactions: data.transactions, 
+                balance: this.state.balance, 
+                categoryFreq: data.categoryFreq,
+                categories: data.categories,
+                loggedIn: true});  
+        });    
     }
 
-    getYear() {
-        console.log("Getting years info");
-        var content = {};
-        var categories = new Map();
-        var catNumTimes = new Map();
-        var trans = [];
-        axios.get("http://localhost:5000/transactions/", res => {
-            console.log("The res")
-            
-            res.data.transactions.transactions.forEach(function(txn, idx) {
-                trans.push({ts: txn.date, text: txn.name, amount: txn.amount, categories: txn.category});
-                if (categories.has(txn.category[0])) {
-                    var currAmount = categories.get(txn.category[0]);
-                    categories.set(txn.category[0], txn.amount + currAmount);
-                }
-                else {
-                    categories.set(txn.category[0], txn.amount);
-                }
-
-                if (catNumTimes.has(txn.category[0])) {
-                    var currTime = catNumTimes.get(txn.category[0]);
-                    catNumTimes.set(txn.category[0], ++currTime);
-                }
-                else {
-                    catNumTimes.set(txn.category[0], 1);
-                }
-            });
-            console.log(trans)
-            if (categories.size > 0 && trans.length > 0) {
-                console.log("set state too")
-                this.setState({transactions: trans, 
-                    balance: content.balance, 
-                    categories: categories, 
-                    catTime: catNumTimes,
-                    loggedIn: true});   
-            }
-        });
-        console.log("at the end of the request")
+    getYearToDate() {
+        var now = new Date();
+        var start = new Date(now.getFullYear(), 0, 0);
+        var diff = (now - start) + ((start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000);
+        var oneDay = 1000 * 60 * 60 * 24;
+        return Math.floor(diff / oneDay);
     }
 
     render() {
@@ -185,12 +133,12 @@ export default class Wrapper extends Component {
                         <Container>
                             <Jumbotron>
                                 <ButtonToolbar style={nav}>
-                                    <Button style={navButton} onClick={this.getYesterday}>Yesterday</Button>
-                                    <Button style={navButton}>Past Week</Button>
-                                    <Button style={navButton}>Past Month</Button>
-                                    <Button style={navButton}>Past Three Months</Button>
-                                    <Button style={navButton} onClick={this.getYear}>Past Year</Button>
-                                    <Button style={navButton}>Year to Date</Button>
+                                    <Button style={navButton} onClick={() => this.updatePage(2)}>Yesterday</Button>
+                                    <Button style={navButton} onClick={() => this.updatePage(7)}>Past Week</Button>
+                                    <Button style={navButton} onClick={() => this.updatePage(30)}>Past Month</Button>
+                                    <Button style={navButton} onClick={() => this.updatePage(90)}>Past Three Months</Button>
+                                    <Button style={navButton} onClick={() => this.updatePage(365)}>Past Year</Button>
+                                    <Button style={navButton} onClick={() => this.updatePage(this.getYearToDate())}>Year to Date</Button>
                                 </ButtonToolbar>
                             </Jumbotron>
                         </Container>
@@ -209,8 +157,8 @@ export default class Wrapper extends Component {
                                 doughnutLabels={Array.from(this.state.categories.keys())}
                                 doughnutValues={Array.from(this.state.categories.values())}
                                 barText={"Here is how often you spend money at these places: "}
-                                barLabels={Array.from(this.state.catTime.keys())}
-                                barValues={Array.from(this.state.catTime.values())}
+                                barLabels={Array.from(this.state.categoryFreq.keys())}
+                                barValues={Array.from(this.state.categoryFreq.values())}
                                 width={400}
                                 height={400}
                             />
