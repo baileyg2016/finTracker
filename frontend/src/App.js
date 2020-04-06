@@ -51,7 +51,7 @@ class App extends Component {
       </PlaidLink>;
     }
     else {
-      content = <Wrapper />
+      content = <Wrapper test="hello" />
     }
     return (
       <div>

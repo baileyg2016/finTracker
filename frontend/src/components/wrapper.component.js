@@ -7,7 +7,7 @@ import Button from 'react-bootstrap/Button';
 import ButtonToolbar from 'react-bootstrap/ButtonToolbar';
 
 import Graphs from './graph.component';
-// import Loading from './loading.component';
+import Loading from './loading.component';
 
 
 const nav = {
@@ -169,7 +169,7 @@ export default class Wrapper extends Component {
         }
         else {
             return (
-                <h1>We are loading your information</h1>
+                <Loading />
             )
         }
     }
